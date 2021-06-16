@@ -1,3 +1,7 @@
+/*
+ * created by deardeer
+ * c++11 standard
+ * */
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -43,6 +47,7 @@ vector<string> crop(vector<string>& vs) {
 }
 
 // get character matrix by ifstream
+// i.e. read bit matrix from file
 vector<string> getMatrix(ifstream& in) {
     vector<string> vs;
     string s;
@@ -80,18 +85,19 @@ double getRatio(vector<string>& vs) {
     return one * 1.0 / 90000.0;
 }
 
+// get a set of ratios of all subMatrices
 vector<double> getRatios(vector<string>& vs) {
     vector<double> ans;
-    vector<string> sub = getSub(vs, 0, 0);
+    vector<string> sub = getSub(vs, 0, 0); // left top part
     ans.push_back(getRatio(sub));
 
-    sub = getSub(vs, 0, 150);
+    sub = getSub(vs, 0, 150); // right top part
     ans.push_back(getRatio(sub));
 
-    sub = getSub(vs, 150, 0);
+    sub = getSub(vs, 150, 0); // left down part
     ans.push_back(getRatio(sub));
 
-    sub = getSub(vs, 150, 150);
+    sub = getSub(vs, 150, 150); // right down part
     ans.push_back(getRatio(sub));
 
     return ans;
@@ -100,24 +106,25 @@ vector<double> getRatios(vector<string>& vs) {
 // calc match ratios and print results
 void calc(const vector<vector<double>>& ratios,const vector<double>& myRatios) {
     vector<double> res(5);
-    double mi = 1.0, idx = -1;
+    double mi = 1.0, idx = -1; // minimal value of ratio, index of minimal value
     for(int i = 0; i < 5; ++i) {
         double t = 0.0;
         for(int j = 0; j < 4; ++j) {
-            t += fabs(ratios[i][j] - myRatios[j]);
+            t += fabs(ratios[i][j] - myRatios[j]); // absolute difference of two corresponding part
         }
         res[i] = t / 4;
         if(mi > res[i]) {
             mi = res[i];
             idx = i;
         }
-        cout << res[i] << " ";
+//        cout << res[i] << " ";
     }
-    cout << endl;
+//    cout << endl;
     double percent = 1.0 - res[idx];
     cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%" << endl;
 }
 
+// illegal input messages
 void illegalInput() {
     cout << "illegal input!" << endl;
     exit(0);
@@ -125,24 +132,24 @@ void illegalInput() {
 
 int main() {
 
-    ofstream out(ADDR + "out.txt");
-    vector<vector<double>> ratios;
-    for(int i = 1; i <= 5; ++i) {
+    ofstream out(ADDR + "out.txt"); // output file, not used yet!
+    vector<vector<double>> ratios; // sets of ratios of standard characters
+    for(int i = 1; i <= 5; ++i) { // read and process five photos
         ifstream in(ADDR + to_string(i) + ".txt");
         vector<string> M = getMatrix(in);
         ratios.push_back(getRatios(M));
         in.close();
     }
 
-    int option = -1;
+    int option = -1; // user's option
     cout << "Please input option:" << endl;
     cin >> option;
-    if(option == 1) {
+    if(option == 1) { // choose a standard character
         cout << "----Mode1----" << endl;
         string txt;
         cout << "Please input full txt file name:" << endl;
-        cin >> txt;
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) {
+        cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
+        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
             illegalInput();
         }
         ifstream in(ADDR + txt);
@@ -152,12 +159,12 @@ int main() {
 
         calc(ratios, myRatios);
     }
-    else if(option == 2) {
+    else if(option == 2) { // choose a handwritten character of ours
         cout << "----Mode2----" << endl;
         string txt;
         cout << "Please input full txt file name:" << endl;
         cin >> txt;
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) {
+        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
             illegalInput();
         }
         ifstream in(ADDR + txt);
@@ -167,12 +174,12 @@ int main() {
 
         calc(ratios, myRatios);
     }
-    else if(option == 3) {
+    else if(option == 3) { // choose a handwritten character of teacher's
         cout << "----Mode3----" << endl;
         string txt;
         cout << "Please input txt full file name:" << endl;
         cin >> txt;
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) {
+        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
             illegalInput();
         }
         ifstream in(ADDR + txt);
