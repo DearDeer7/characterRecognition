@@ -1,0 +1,3 @@
+E:/JetBrain Projects/C_Lion/characterRecognition/cmake-build-debug/CMakeFiles/characterRecognition.dir
+E:/JetBrain Projects/C_Lion/characterRecognition/cmake-build-debug/CMakeFiles/edit_cache.dir
+E:/JetBrain Projects/C_Lion/characterRecognition/cmake-build-debug/CMakeFiles/rebuild_cache.dir

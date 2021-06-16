@@ -1,0 +1,3 @@
+"D:\Program Files\JetBrains\CLion 2021.1.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\characterRecognition.dir/objects.a
+D:\PROGRA~1\MINGW-~1\X86_64~1.0-W\mingw64\bin\ar.exe cr CMakeFiles\characterRecognition.dir/objects.a @CMakeFiles\characterRecognition.dir\objects1.rsp
+D:\PROGRA~1\MINGW-~1\X86_64~1.0-W\mingw64\bin\G__~1.EXE -g -Wl,--whole-archive CMakeFiles\characterRecognition.dir/objects.a -Wl,--no-whole-archive -o characterRecognition.exe -Wl,--out-implib,libcharacterRecognition.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\characterRecognition.dir\linklibs.rsp
