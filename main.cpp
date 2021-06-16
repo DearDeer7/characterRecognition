@@ -121,14 +121,9 @@ void calc(const vector<vector<double>>& ratios,const vector<double>& myRatios) {
     }
 //    cout << endl;
     double percent = 1.0 - res[idx];
-    cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%" << endl;
+    cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%\n\n";
 }
 
-// illegal input messages
-void illegalInput() {
-    cout << "illegal input!" << endl;
-    exit(0);
-}
 
 int main() {
 
@@ -136,64 +131,95 @@ int main() {
     vector<vector<double>> ratios; // sets of ratios of standard characters
     for(int i = 1; i <= 5; ++i) { // read and process five photos
         ifstream in(ADDR + to_string(i) + ".txt");
+        if(!in) {
+            cout << "failed to open file!\nquitting...\n\n";
+            exit(0);
+        }
         vector<string> M = getMatrix(in);
         ratios.push_back(getRatios(M));
         in.close();
     }
 
     int option = -1; // user's option
-    cout << "Please input option:" << endl;
-    cin >> option;
-    if(option == 1) { // choose a standard character
-        cout << "----Mode1----" << endl;
-        string txt;
-        cout << "Please input full txt file name:" << endl;
-        cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
-            illegalInput();
+    while(option != 0) {
+        cout << "Notes: input 0 to quit..." << endl;
+        cout << "Please input option:" << endl;
+        cin >> option;
+        if(option == 0) {
+            cout << "quitting..." << endl;
+            exit(0);
         }
-        ifstream in(ADDR + txt);
-        vector<string> M = getMatrix(in);
-        vector<double> myRatios = getRatios(M);
-        in.close();
+        else if(option == 1) { // choose a standard character
+            cout << "----Mode1----" << endl;
+            string txt;
+            cout << "Please input full txt file name:" << endl;
+            cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
+            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+                cout << "illegal input!" << endl;
+                cout << "Please input full txt file name:" << endl;
+                cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
+            }
+            ifstream in(ADDR + txt);
+            if(!in) {
+                cout << "failed to open file!\nquitting...\n\n";
+                exit(0);
+            }
+            vector<string> M = getMatrix(in);
+            vector<double> myRatios = getRatios(M);
+            in.close();
 
-        calc(ratios, myRatios);
-    }
-    else if(option == 2) { // choose a handwritten character of ours
-        cout << "----Mode2----" << endl;
-        string txt;
-        cout << "Please input full txt file name:" << endl;
-        cin >> txt;
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
-            illegalInput();
+            calc(ratios, myRatios);
         }
-        ifstream in(ADDR + txt);
-        vector<string> M = getMatrix(in);
-        vector<double> myRatios = getRatios(M);
-        in.close();
+        else if(option == 2) { // choose a handwritten character of ours
+            cout << "----Mode2----" << endl;
+            string txt;
+            cout << "Please input full txt file name:" << endl;
+            cin >> txt;
+            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+                cout << "illegal input!" << endl;
+                cout << "Please input full txt file name:" << endl;
+                cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
+            }
+            ifstream in(ADDR + txt);
+            if(!in) {
+                cout << "failed to open file!\nquitting...\n\n";
+                exit(0);
+            }
+            vector<string> M = getMatrix(in);
+            vector<double> myRatios = getRatios(M);
+            in.close();
 
-        calc(ratios, myRatios);
-    }
-    else if(option == 3) { // choose a handwritten character of teacher's
-        cout << "----Mode3----" << endl;
-        string txt;
-        cout << "Please input txt full file name:" << endl;
-        cin >> txt;
-        if(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
-            illegalInput();
+            calc(ratios, myRatios);
         }
-        ifstream in(ADDR + txt);
-        vector<string> M = getMatrix(in);
-        vector<double> myRatios = getRatios(M);
-        in.close();
+        else if(option == 3) { // choose a handwritten character of teacher's
+            cout << "----Mode3----" << endl;
+            string txt;
+            cout << "Please input txt full file name:" << endl;
+            cin >> txt;
+            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+                cout << "illegal input!" << endl;
+                cout << "Please input full txt file name:" << endl;
+                cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
+            }
+            ifstream in(ADDR + txt);
+            if(!in) {
+                cout << "failed to open file!\nquitting...\n\n";
+                exit(0);
+            }
+            vector<string> M = getMatrix(in);
+            vector<double> myRatios = getRatios(M);
+            in.close();
 
-        calc(ratios, myRatios);
+            calc(ratios, myRatios);
+        }
+        else { // illegal input messages
+            cout << "illegal input!" << endl;
+            exit(0);
+        }
+
+        out.close();
     }
-    else {
 
-    }
-
-    out.close();
 
     return 0;
 }
