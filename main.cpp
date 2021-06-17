@@ -12,7 +12,7 @@ const string ADDR = "C:\\Users\\14795\\Desktop\\CR\\files\\";
 ofstream out(ADDR + "out.txt"); // output file, not used yet!
 
 // crop matrix
-// make sure the character is right at left top
+// make sure the character is at left top
 // and matrix size stay 300*300
 vector<string> crop(vector<string>& vs) {
     const int sz = vs.size();
@@ -31,11 +31,6 @@ vector<string> crop(vector<string>& vs) {
             }
         }
     }
-//    cout << l << " " << r << " " << u << " " << d << endl;
-//    int len = max(r - l + 1, d - u + 1);
-//    r = l + len;
-//    d = u + len;
-//    cout << l << " " << r << " " << u << " " << d << endl;
     vector<string> ans;
     for(int i = 0; i < vs.size() + u; ++i) {
         if(i < u) continue;
@@ -95,7 +90,7 @@ double getRatio(vector<string>& vs) {
             else zero++;
         }
     }
-    if(one == 0){
+    if(one == 0){ // exception check
         cout << "No pixel found!" << endl;
         exit(0);
     }
@@ -148,13 +143,15 @@ void calc(vector<vector<string>>& MM_S, vector<string>& M_T) {
     double ma = 0, idx = -1; // max value of ratio, index of max value
     for(int i = 0; i < matches_S.size(); ++i) {
         cout << matches_S[i] << " " << ratios_S[i] << endl;
-//        double t = matches_S[i] * 0.8 + ratios_S[i] * 0.2;
-//        if(t == 0) t = matches_S[i] + ratios_S[i];
-//        if(t > ma) {
-//            ma = t;
-//            idx = i;
-//        }
+        double t = matches_S[i];
+        if(t > ma) {
+            ma = t;
+            idx = i;
+        }
     }
+
+    cout << "Best Match = " << idx + 1 << " with rate " << ma * 100 << "%\n\n";
+//    out << "Best Match = " << idx + 1 << " with rate " << ma * 100 << "%\n\n";
 }
 
 
@@ -182,7 +179,7 @@ int main() {
             cout << "quitting..." << endl;
             exit(0);
         }
-        else if(option >= 1 || option <= 3) {
+        else if(option >= 1 && option <= 3) {
             cout << "----Mode" << option << "----" << endl;
             string txt;
             cout << "Please input full txt file name:" << endl;
@@ -202,10 +199,12 @@ int main() {
 
             calc(MM_S, M_T);
         }
+        else {
+            cout << "illegal option!" << endl;
+        }
 
         out.close();
     }
-
 
     return 0;
 }
