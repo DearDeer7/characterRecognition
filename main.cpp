@@ -9,6 +9,7 @@ using namespace std;
 // then copy your files path into ADDR string below
 // remember to add "\\" in the end
 const string ADDR = "C:\\Users\\14795\\Desktop\\CR\\files\\";
+ofstream out(ADDR + "out.txt"); // output file, not used yet!
 
 // crop matrix
 // not used yet!
@@ -29,10 +30,10 @@ vector<string> crop(vector<string>& vs) {
         }
     }
     cout << l << " " << r << " " << u << " " << d << endl;
-    int len = max(r - l + 1, d - u + 1);
-    r = l + len;
-    d = u + len;
-    cout << l << " " << r << " " << u << " " << d << endl;
+//    int len = max(r - l + 1, d - u + 1);
+//    r = l + len;
+//    d = u + len;
+//    cout << l << " " << r << " " << u << " " << d << endl;
     vector<string> ans;
     for(int i = 0; i < vs.size(); ++i) {
         if(i < u || i > d) continue;
@@ -41,8 +42,10 @@ vector<string> crop(vector<string>& vs) {
             if(j < l || j > r) continue;
             cur += vs[i][j];
         }
+        out << cur << endl;
         ans.push_back(cur);
     }
+    out << endl;
     return ans;
 }
 
@@ -66,14 +69,16 @@ vector<string> getSub(vector<string>& vs, int r, int c) {
             cur.push_back(vs[i + r][j + c]);
         }
         sub.push_back(cur);
+//        out << cur << endl;
     }
+//    out << endl;
     return sub;
 }
 
 // get character pixel ratio
 double getRatio(vector<string>& vs) {
     int one = 0;
-    for(auto s : vs) {
+    for(auto& s : vs) {
         for(char c : s) {
             one += c == '1';
         }
@@ -111,7 +116,9 @@ void calc(const vector<vector<double>>& ratios,const vector<double>& myRatios) {
         double t = 0.0;
         for(int j = 0; j < 4; ++j) {
             t += fabs(ratios[i][j] - myRatios[j]); // absolute difference of two corresponding part
+            cout << fabs(ratios[i][j] - myRatios[j]) << " ";
         }
+        cout << endl;
         res[i] = t / 4;
         if(mi > res[i]) {
             mi = res[i];
@@ -127,7 +134,7 @@ void calc(const vector<vector<double>>& ratios,const vector<double>& myRatios) {
 
 int main() {
 
-    ofstream out(ADDR + "out.txt"); // output file, not used yet!
+//    ofstream out(ADDR + "out.txt"); // output file, not used yet!
     vector<vector<double>> ratios; // sets of ratios of standard characters
     for(int i = 1; i <= 5; ++i) { // read and process five photos
         ifstream in(ADDR + to_string(i) + ".txt");
