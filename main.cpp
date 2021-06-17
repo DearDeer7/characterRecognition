@@ -29,23 +29,25 @@ vector<string> crop(vector<string>& vs) {
             }
         }
     }
-    cout << l << " " << r << " " << u << " " << d << endl;
+//    cout << l << " " << r << " " << u << " " << d << endl;
 //    int len = max(r - l + 1, d - u + 1);
 //    r = l + len;
 //    d = u + len;
 //    cout << l << " " << r << " " << u << " " << d << endl;
     vector<string> ans;
-    for(int i = 0; i < vs.size(); ++i) {
-        if(i < u || i > d) continue;
+    for(int i = 0; i < vs.size() + u; ++i) {
+        if(i < u) continue;
         string cur;
-        for(int j = 0; j < vs[0].size(); ++j) {
-            if(j < l || j > r) continue;
-            cur += vs[i][j];
+        for(int j = 0; j < vs[0].size() + l; ++j) {
+            if(j < l) continue;
+            if(i >= 300 || j >= 300) cur += '0';
+            else cur += vs[i][j];
         }
         out << cur << endl;
         ans.push_back(cur);
     }
     out << endl;
+    out << ans.size() << " "  << ans[0].size() << endl;
     return ans;
 }
 
@@ -77,17 +79,18 @@ vector<string> getSub(vector<string>& vs, int r, int c) {
 
 // get character pixel ratio
 double getRatio(vector<string>& vs) {
-    int one = 0;
+    int one = 0, zero = 0;
     for(auto& s : vs) {
         for(char c : s) {
-            one += c == '1';
+            if(c == '1') one++;
+            else zero++;
         }
     }
     if(one == 0){
         cout << "No pixel found!" << endl;
         exit(0);
     }
-    return one * 1.0 / 90000.0;
+    return one * 1.0 / (one + zero);
 }
 
 // get a set of ratios of all subMatrices
@@ -161,7 +164,7 @@ int main() {
             string txt;
             cout << "Please input full txt file name:" << endl;
             cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
-            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+            while(txt.size() < 5 || txt.rfind(".txt") == string::npos) { // input check
                 cout << "illegal input!" << endl;
                 cout << "Please input full txt file name:" << endl;
                 cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
@@ -182,7 +185,7 @@ int main() {
             string txt;
             cout << "Please input full txt file name:" << endl;
             cin >> txt;
-            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+            while(txt.size() < 5 || txt.rfind(".txt") == string::npos) { // input check
                 cout << "illegal input!" << endl;
                 cout << "Please input full txt file name:" << endl;
                 cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
@@ -203,7 +206,7 @@ int main() {
             string txt;
             cout << "Please input txt full file name:" << endl;
             cin >> txt;
-            while(txt.size() < 5 || txt.find(".txt") == string::npos) { // input check
+            while(txt.size() < 5 || txt.rfind(".txt") == string::npos) { // input check
                 cout << "illegal input!" << endl;
                 cout << "Please input full txt file name:" << endl;
                 cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
