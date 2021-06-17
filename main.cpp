@@ -12,8 +12,10 @@ const string ADDR = "C:\\Users\\14795\\Desktop\\CR\\files\\";
 ofstream out(ADDR + "out.txt"); // output file, not used yet!
 
 // crop matrix
-// not used yet!
+// make sure the character is right at left top
+// and matrix size stay 300*300
 vector<string> crop(vector<string>& vs) {
+    const int sz = vs.size();
     int l = INT_MAX;
     int r = INT_MIN;
     int u = INT_MAX;
@@ -40,7 +42,7 @@ vector<string> crop(vector<string>& vs) {
         string cur;
         for(int j = 0; j < vs[0].size() + l; ++j) {
             if(j < l) continue;
-            if(i >= 300 || j >= 300) cur += '0';
+            if(i >= sz || j >= sz) cur += '0';
             else cur += vs[i][j];
         }
         out << cur << endl;
@@ -59,7 +61,7 @@ vector<string> getMatrix(ifstream& in) {
     while(getline(in, s)) {
         vs.push_back(s);
     }
-    return vs;
+    return crop(vs);
 }
 
 // get subMatrix by given r and c (starting index)
@@ -71,10 +73,17 @@ vector<string> getSub(vector<string>& vs, int r, int c) {
             cur.push_back(vs[i + r][j + c]);
         }
         sub.push_back(cur);
-//        out << cur << endl;
     }
-//    out << endl;
     return sub;
+}
+
+vector<vector<string>> getSubs(vector<string>& M) {
+    vector<vector<string>> vvs;
+    vvs.push_back(getSub(M, 0, 0));
+    vvs.push_back(getSub(M, 0, 150));
+    vvs.push_back(getSub(M, 150, 0));
+    vvs.push_back(getSub(M, 150, 150));
+    return vvs;
 }
 
 // get character pixel ratio
@@ -93,52 +102,88 @@ double getRatio(vector<string>& vs) {
     return one * 1.0 / (one + zero);
 }
 
-// get a set of ratios of all subMatrices
-vector<double> getRatios(vector<string>& vs) {
-    vector<double> ans;
-    vector<string> sub = getSub(vs, 0, 0); // left top part
-    ans.push_back(getRatio(sub));
+double getRatios(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T) {
+    double diff = 0;
+    for(int i = 0; i < 4; ++i ) {
+        diff += fabs(getRatio(subM_S[i]) - getRatio(subM_T[i]));
+    }
+    return diff / 4.0;
+}
 
-    sub = getSub(vs, 0, 150); // right top part
-    ans.push_back(getRatio(sub));
+double getMatch(vector<string>& sub_s, vector<string>& sub_t) {
+    int r = sub_s.size(), c = sub_s[0].size();
+    int match = 0;
+    int raw_one = 0;
+    for(int i = 0; i < r; ++i) {
+        for(int j = 0; j < c; ++j) {
+            if(sub_s[i][j] == '1') {
+                raw_one++;
+                if(sub_s[i][j] == sub_t[i][j]) match++;
+            }
+        }
+    }
+    return match * 1.0 / raw_one; // divide overlapped one with one in sub_s
+}
 
-    sub = getSub(vs, 150, 0); // left down part
-    ans.push_back(getRatio(sub));
-
-    sub = getSub(vs, 150, 150); // right down part
-    ans.push_back(getRatio(sub));
-
-    return ans;
+double getMatches(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T) {
+    double res = 0;
+    for(int i = 0; i < 4; ++i) {
+        res += getMatch(subM_S[i], subM_T[i]);
+    }
+    return res / 4.0;
 }
 
 // calc match ratios and print results
-void calc(const vector<vector<double>>& ratios,const vector<double>& myRatios) {
-    vector<double> res(5);
-    double mi = 1.0, idx = -1; // minimal value of ratio, index of minimal value
-    for(int i = 0; i < 5; ++i) {
-        double t = 0.0;
-        for(int j = 0; j < 4; ++j) {
-            t += fabs(ratios[i][j] - myRatios[j]); // absolute difference of two corresponding part
-            cout << fabs(ratios[i][j] - myRatios[j]) << " ";
-        }
-        cout << endl;
-        res[i] = t / 4;
-        if(mi > res[i]) {
-            mi = res[i];
+void calc(vector<vector<string>>& MM_S, vector<string>& M_T) {
+    vector<vector<string>> subM_T = getSubs(M_T);
+
+    vector<double> matches_S;
+    vector<double> ratios_S;
+    for(auto& M_S : MM_S) {
+        vector<vector<string>> subM_S = getSubs(M_S); // a character's subMatrices
+        matches_S.push_back(getMatches(subM_S, subM_T));
+        ratios_S.push_back(getRatios(subM_S, subM_T));
+    }
+
+    double ma = 0, idx = -1; // max value of ratio, index of minimal value
+    for(int i = 0; i < matches_S.size(); ++i) {
+        cout << matches_S[i] << " " << ratios_S[i] << endl;
+        double t = matches_S[i] * 0.8 + ratios_S[i] * 0.2;
+        if(t == 0) t = matches_S[i] + ratios_S[i];
+        if(t > ma) {
+            ma = t;
             idx = i;
         }
-//        cout << res[i] << " ";
     }
-//    cout << endl;
-    double percent = 1.0 - res[idx];
-    cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%\n\n";
+
+    cout << "Best Match = " << idx + 1 << " with ratio " << ma * 100.0 << "%\n\n";
+
+//    vector<double> res(5);
+//    double mi = 1.0, idx = -1; // minimal value of ratio, index of minimal value
+//    for(int i = 0; i < 5; ++i) {
+//        double t = 0.0;
+//        for(int j = 0; j < 4; ++j) {
+//            t += fabs(ratios[i][j] - myRatios[j]); // absolute difference of two corresponding part
+//            cout << fabs(ratios[i][j] - myRatios[j]) << " ";
+//        }
+//        cout << endl;
+//        res[i] = t / 4;
+//        if(mi > res[i]) {
+//            mi = res[i];
+//            idx = i;
+//        }
+////        cout << res[i] << " ";
+//    }
+////    cout << endl;
+//    double percent = 1.0 - res[idx];
+//    cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%\n\n";
 }
 
 
 int main() {
 
 //    ofstream out(ADDR + "out.txt"); // output file, not used yet!
-    vector<vector<double>> ratios; // sets of ratios of standard characters
+    vector<vector<string>> MM_S; // sets of source Matrix of standard characters
     for(int i = 1; i <= 5; ++i) { // read and process five photos
         ifstream in(ADDR + to_string(i) + ".txt");
         if(!in) {
@@ -146,7 +191,7 @@ int main() {
             exit(0);
         }
         vector<string> M = getMatrix(in);
-        ratios.push_back(getRatios(M));
+        MM_S.push_back(M);
         in.close();
     }
 
@@ -159,8 +204,8 @@ int main() {
             cout << "quitting..." << endl;
             exit(0);
         }
-        else if(option == 1) { // choose a standard character
-            cout << "----Mode1----" << endl;
+        else if(option >= 1 || option <= 3) {
+            cout << "----Mode" << option << "----" << endl;
             string txt;
             cout << "Please input full txt file name:" << endl;
             cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
@@ -174,57 +219,10 @@ int main() {
                 cout << "failed to open file!\nquitting...\n\n";
                 exit(0);
             }
-            vector<string> M = getMatrix(in);
-            vector<double> myRatios = getRatios(M);
+            vector<string> M_T = getMatrix(in);
             in.close();
 
-            calc(ratios, myRatios);
-        }
-        else if(option == 2) { // choose a handwritten character of ours
-            cout << "----Mode2----" << endl;
-            string txt;
-            cout << "Please input full txt file name:" << endl;
-            cin >> txt;
-            while(txt.size() < 5 || txt.rfind(".txt") == string::npos) { // input check
-                cout << "illegal input!" << endl;
-                cout << "Please input full txt file name:" << endl;
-                cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
-            }
-            ifstream in(ADDR + txt);
-            if(!in) {
-                cout << "failed to open file!\nquitting...\n\n";
-                exit(0);
-            }
-            vector<string> M = getMatrix(in);
-            vector<double> myRatios = getRatios(M);
-            in.close();
-
-            calc(ratios, myRatios);
-        }
-        else if(option == 3) { // choose a handwritten character of teacher's
-            cout << "----Mode3----" << endl;
-            string txt;
-            cout << "Please input txt full file name:" << endl;
-            cin >> txt;
-            while(txt.size() < 5 || txt.rfind(".txt") == string::npos) { // input check
-                cout << "illegal input!" << endl;
-                cout << "Please input full txt file name:" << endl;
-                cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
-            }
-            ifstream in(ADDR + txt);
-            if(!in) {
-                cout << "failed to open file!\nquitting...\n\n";
-                exit(0);
-            }
-            vector<string> M = getMatrix(in);
-            vector<double> myRatios = getRatios(M);
-            in.close();
-
-            calc(ratios, myRatios);
-        }
-        else { // illegal input messages
-            cout << "illegal input!" << endl;
-            exit(0);
+            calc(MM_S, M_T);
         }
 
         out.close();
