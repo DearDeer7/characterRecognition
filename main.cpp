@@ -145,38 +145,16 @@ void calc(vector<vector<string>>& MM_S, vector<string>& M_T) {
         ratios_S.push_back(getRatios(subM_S, subM_T));
     }
 
-    double ma = 0, idx = -1; // max value of ratio, index of minimal value
+    double ma = 0, idx = -1; // max value of ratio, index of max value
     for(int i = 0; i < matches_S.size(); ++i) {
         cout << matches_S[i] << " " << ratios_S[i] << endl;
-        double t = matches_S[i] * 0.8 + ratios_S[i] * 0.2;
-        if(t == 0) t = matches_S[i] + ratios_S[i];
-        if(t > ma) {
-            ma = t;
-            idx = i;
-        }
-    }
-
-    cout << "Best Match = " << idx + 1 << " with ratio " << ma * 100.0 << "%\n\n";
-
-//    vector<double> res(5);
-//    double mi = 1.0, idx = -1; // minimal value of ratio, index of minimal value
-//    for(int i = 0; i < 5; ++i) {
-//        double t = 0.0;
-//        for(int j = 0; j < 4; ++j) {
-//            t += fabs(ratios[i][j] - myRatios[j]); // absolute difference of two corresponding part
-//            cout << fabs(ratios[i][j] - myRatios[j]) << " ";
-//        }
-//        cout << endl;
-//        res[i] = t / 4;
-//        if(mi > res[i]) {
-//            mi = res[i];
+//        double t = matches_S[i] * 0.8 + ratios_S[i] * 0.2;
+//        if(t == 0) t = matches_S[i] + ratios_S[i];
+//        if(t > ma) {
+//            ma = t;
 //            idx = i;
 //        }
-////        cout << res[i] << " ";
-//    }
-////    cout << endl;
-//    double percent = 1.0 - res[idx];
-//    cout << "Best Match = " << idx + 1 << " with ratio " << percent * 100.0 << "%\n\n";
+    }
 }
 
 
