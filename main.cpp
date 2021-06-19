@@ -9,7 +9,6 @@ using namespace std;
 // then copy your files path into ADDR string below
 // remember to add "\\" in the end
 const string ADDR = "C:\\Users\\14795\\Desktop\\CR\\files\\";
-ofstream out(ADDR + "out.txt"); // output file, not used yet!
 
 // crop matrix
 // make sure the character is at left top
@@ -40,11 +39,8 @@ vector<string> crop(vector<string>& vs) {
             if(i >= sz || j >= sz) cur += '0';
             else cur += vs[i][j];
         }
-        out << cur << endl;
         ans.push_back(cur);
     }
-    out << endl;
-    out << ans.size() << " "  << ans[0].size() << endl;
     return ans;
 }
 
@@ -59,7 +55,7 @@ vector<string> getMatrix(ifstream& in) {
     return crop(vs);
 }
 
-// get subMatrix by given r and c (starting index)
+// get a specified subMatrix by given r and c (starting index)
 vector<string> getSub(vector<string>& vs, int r, int c) {
     vector<string> sub;
     for(int i = 0; i <= 149; ++i) {
@@ -72,6 +68,7 @@ vector<string> getSub(vector<string>& vs, int r, int c) {
     return sub;
 }
 
+// get subMatrices of M
 vector<vector<string>> getSubs(vector<string>& M) {
     vector<vector<string>> vvs;
     vvs.push_back(getSub(M, 0, 0));
@@ -90,13 +87,10 @@ double getRatio(vector<string>& vs) {
             else zero++;
         }
     }
-    if(one == 0){ // exception check
-        cout << "No pixel found!" << endl;
-        exit(0);
-    }
     return one * 1.0 / (one + zero);
 }
 
+// get difference ratio of two characters
 double getRatios(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T) {
     double diff = 0;
     for(int i = 0; i < 4; ++i ) {
@@ -105,21 +99,38 @@ double getRatios(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T)
     return diff / 4.0;
 }
 
+// search with point (row, col) in M in four directions to detect '1'
+int search(vector<string>& M, int row, int col) {
+    if(M[row][col] == '1') return 1;
+
+    vector<int> dirs{0,1,0,-1,0};
+    for(int i = 0; i < 4; ++i) {
+        int y = row + dirs[i];
+        int x = col + dirs[i + 1];
+        if(y < 0 || y >= M.size() || x < 0 || x >= M[0].size()) continue;
+        if(M[y][x] == '1') return 1;
+    }
+    return 0;
+}
+
+// get match rate of two matrix
 double getMatch(vector<string>& sub_s, vector<string>& sub_t) {
     int r = sub_s.size(), c = sub_s[0].size();
     int match = 0;
     int raw_one = 0;
     for(int i = 0; i < r; ++i) {
         for(int j = 0; j < c; ++j) {
-            if(sub_s[i][j] == '1') {
+            if(sub_t[i][j] == '1') {
                 raw_one++;
-                if(sub_s[i][j] == sub_t[i][j]) match++;
+                match += search(sub_s, i, j);
             }
         }
     }
+    if(raw_one == 0) return 0;
     return match * 1.0 / raw_one; // divide overlapped one with one in sub_s
 }
 
+// get match rates of two characters
 double getMatches(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T) {
     double res = 0;
     for(int i = 0; i < 4; ++i) {
@@ -132,8 +143,8 @@ double getMatches(vector<vector<string>>& subM_S, vector<vector<string>>& subM_T
 void calc(vector<vector<string>>& MM_S, vector<string>& M_T) {
     vector<vector<string>> subM_T = getSubs(M_T);
 
-    vector<double> matches_S;
-    vector<double> ratios_S;
+    vector<double> matches_S; // 重合度数组
+    vector<double> ratios_S; // 像素差数组
     for(auto& M_S : MM_S) {
         vector<vector<string>> subM_S = getSubs(M_S); // a character's subMatrices
         matches_S.push_back(getMatches(subM_S, subM_T));
@@ -141,25 +152,52 @@ void calc(vector<vector<string>>& MM_S, vector<string>& M_T) {
     }
 
     double ma = 0, idx = -1; // max value of ratio, index of max value
-    for(int i = 0; i < matches_S.size(); ++i) {
-        cout << matches_S[i] << " " << ratios_S[i] << endl;
-        double t = matches_S[i];
-        if(t > ma) {
-            ma = t;
+    vector<double> overalls(5); // 综合得分（相似度）
+    for(int i = 0; i < 5; ++i) {
+        overalls[i] = matches_S[i] * 0.8 + (1.0 - ratios_S[i]) * 0.2;
+        if(overalls[i] > ma) {
+            ma = overalls[i];
             idx = i;
         }
     }
 
-    cout << "Best Match = " << idx + 1 << " with rate " << ma * 100 << "%\n\n";
-//    out << "Best Match = " << idx + 1 << " with rate " << ma * 100 << "%\n\n";
+    // 格式化输出
+    for(int i = 0; i < matches_S.size(); ++i) {
+        if(i == 0) {
+            cout << "------------------------------------------------\n|重合度\t|";
+        }
+        printf(" %.2f\t|", matches_S[i]);
+    }
+    for(int i = 0; i < ratios_S.size(); ++i) {
+        if(i == 0) {
+            cout << "\n|像素差\t|";
+        }
+        printf(" %.2f\t|", ratios_S[i]);
+    }
+    for(int i = 0; i < overalls.size(); ++i) {
+        if(i == 0) {
+            cout << "\n|相似度\t|";
+        }
+        printf(" %.2f\t|", overalls[i]);
+    }
+    cout << "\n------------------------------------------------\n";
+
+
+    unordered_map<int, string> mp; // key-val binds
+    mp[0] = "开";
+    mp[1] = "心";
+    mp[2] = "人";
+    mp[3] = "鱼";
+    mp[4] = "少";
+    cout << "Best Match is " << idx + 1 << "（" << mp[idx] << "）" << " with rate ";
+    printf("%.2f%\n\n",ma * 100);
 }
 
 
 int main() {
 
-//    ofstream out(ADDR + "out.txt"); // output file, not used yet!
     vector<vector<string>> MM_S; // sets of source Matrix of standard characters
-    for(int i = 1; i <= 5; ++i) { // read and process five photos
+    for(int i = 1; i <= 5; ++i) { // read and process five sample photos
         ifstream in(ADDR + to_string(i) + ".txt");
         if(!in) {
             cout << "failed to open file!\nquitting...\n\n";
@@ -190,20 +228,19 @@ int main() {
                 cin >> txt; // full txt file name, such as 1.txt, h_1.txt, xxx.txt
             }
             ifstream in(ADDR + txt);
-            if(!in) {
+            if(!in) { // file open check
                 cout << "failed to open file!\nquitting...\n\n";
                 exit(0);
             }
             vector<string> M_T = getMatrix(in);
             in.close();
 
-            calc(MM_S, M_T);
+            calc(MM_S, M_T); // character recognition and print results
         }
-        else {
+        else { // legal option input check
             cout << "illegal option!" << endl;
         }
 
-        out.close();
     }
 
     return 0;
